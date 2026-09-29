@@ -5,9 +5,12 @@ import { router } from './app/router'
 import { OnboardingScreen } from './components/OnboardingScreen'
 
 export function App() {
-  // ponytail: lazy 1-line check with native localStorage — no extra store, zero flash
+  // ponytail: 1-line check with native localStorage + ?onboarding dev override
   const [isOnboarded, setIsOnboarded] = React.useState<boolean>(() => {
     try {
+      if (typeof window !== 'undefined' && window.location.search.includes('onboarding')) {
+        return false
+      }
       return localStorage.getItem('polarpdf_onboarded') === 'true'
     } catch {
       return true
@@ -19,6 +22,11 @@ export function App() {
       localStorage.setItem('polarpdf_onboarded', 'true')
     } catch {
       // ignore
+    }
+    if (typeof window !== 'undefined' && window.location.search.includes('onboarding')) {
+      const url = new URL(window.location.href)
+      url.searchParams.delete('onboarding')
+      window.history.replaceState({}, '', url.pathname + (url.search ? url.search : ''))
     }
     setIsOnboarded(true)
   }, [])

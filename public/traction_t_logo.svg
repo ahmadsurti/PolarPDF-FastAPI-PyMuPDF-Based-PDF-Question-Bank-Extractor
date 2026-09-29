@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 117 111"
+     width="117"
+     height="111">
+  <path
+    fill="#FA7844"
+    d="M110 3H40V18C40 19.1 39.1 20 38 20H16L6 38H44C45.7 38 47 39.3 47 41V76C47 77.1 46.1 78 45 78H38V106L70 87V39H95V24C95 22.9 95.9 22 97 22H110V3Z"/>
+</svg>

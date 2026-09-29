@@ -1,6 +1,14 @@
 @import "./dashboard-shell/styles/theme.css";
 @import "./features/question-studio/styles/question-studio.css";
 
+@font-face {
+  font-family: 'PowerDisplay';
+  src: url('/PowerDisplay-Regular.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* ─────────────────────────────────────────────────────── */
 /* @theme inline — Tailwind v4 color + token bridge        */
 /* ─────────────────────────────────────────────────────── */
@@ -8,6 +16,7 @@
 @theme inline {
   /* ── Fonts ── */
   --font-sans:         var(--font-sans);
+  --font-power:        'PowerDisplay', sans-serif;
   --font-mono:         var(--font-mono);
   --font-serif:        var(--font-serif);
   --font-outfit:       var(--font-outfit);
@@ -15,10 +24,10 @@
   --font-instrument:   var(--font-instrument);
 
   /* ── Radii ── */
-  --radius-sm:   calc(var(--radius) - 4px);
-  --radius-md:   calc(var(--radius) - 2px);
-  --radius-lg:   var(--radius);
-  --radius-xl:   calc(var(--radius) + 4px);
+  --radius-sm:   var(--radius-sm);
+  --radius-md:   var(--radius-md);
+  --radius-lg:   var(--radius-lg);
+  --radius-xl:   var(--radius-xl);
 
   /* ── Colors ── */
   --color-background:              var(--background);
@@ -93,6 +102,10 @@
 .font-instrument-italic {
   font-family: var(--font-instrument);
   font-style: italic;
+}
+
+.font-power {
+  font-family: 'PowerDisplay', var(--font-sans), sans-serif;
 }
 
 

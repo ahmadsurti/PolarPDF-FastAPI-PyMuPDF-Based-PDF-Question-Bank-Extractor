@@ -33,10 +33,14 @@ export function ThemeToggle() {
       resolvedTheme === "dark"
         ? colorTheme === "parchment"
           ? "#1c1610"
-          : "#1a2416"
+          : colorTheme === "forest"
+            ? "#1a2416"
+            : "#141414"
         : colorTheme === "parchment"
           ? "#ece8e0"
-          : "#f3f8f3"
+          : colorTheme === "forest"
+            ? "#f3f8f3"
+            : "#ffffff"
     document.querySelector("meta[name='theme-color']")?.setAttribute("content", color)
   }, [resolvedTheme, colorTheme])
 

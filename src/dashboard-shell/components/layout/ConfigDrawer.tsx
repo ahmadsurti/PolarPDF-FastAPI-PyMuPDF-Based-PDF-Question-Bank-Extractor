@@ -82,12 +82,20 @@ const COLOR_THEMES: {
   accent: string
 }[] = [
   {
-    id: "green",
+    id: "polar",
+    label: "Polar",
+    sub: "Inter · studio monochrome",
+    bgLight: "oklch(1.0000 0 0)",
+    bgDark: "oklch(0.1448 0 0)",
+    accent: "oklch(0.5555 0 0)",
+  },
+  {
+    id: "forest",
     label: "Forest",
     sub: "Outfit · emerald accent",
     bgLight: "oklch(0.9911 0 0)",
-    bgDark: "oklch(0.2393 0 0)",
-    accent: "oklch(0.8348 0.1302 160.908)",
+    bgDark: "oklch(0.1822 0 0)",
+    accent: "oklch(0.4800 0.1600 155.0)",
   },
   {
     id: "parchment",

@@ -3,11 +3,12 @@ import { getCookie, setCookie, removeCookie } from "../lib/cookies"
 
 /* ── Types ──────────────────────────────────────────────────── */
 export type Theme = "dark" | "light" | "system"
-export type ColorTheme = "green" | "parchment"
+export type ColorTheme = "polar" | "forest" | "parchment"
 export type ResolvedTheme = "dark" | "light"
 
 const COLOR_THEME_MODES: Record<ColorTheme, ReadonlyArray<ResolvedTheme>> = {
-  green: ["light", "dark"],
+  polar: ["light", "dark"],
+  forest: ["light", "dark"],
   parchment: ["light", "dark"],
 }
 
@@ -16,8 +17,8 @@ const THEME_COOKIE = "app-ui-theme"
 const COLOR_THEME_COOKIE = "app-color-theme"
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 365 // 1 year
 
-const DEFAULT_THEME: Theme = "system"
-const DEFAULT_COLOR_THEME: ColorTheme = "green"
+const DEFAULT_THEME: Theme = "light"
+const DEFAULT_COLOR_THEME: ColorTheme = "polar"
 
 /* ── Context shape ──────────────────────────────────────────── */
 export type ThemeProviderState = {
@@ -62,8 +63,11 @@ export function ThemeProvider({
     () => (getCookie(THEME_COOKIE) as Theme) || defaultTheme,
   )
   const [colorTheme, _setColorTheme] = React.useState<ColorTheme>(() => {
-    const saved = getCookie(COLOR_THEME_COOKIE) as ColorTheme
-    return saved === "green" || saved === "parchment" ? saved : defaultColorTheme
+    const saved = getCookie(COLOR_THEME_COOKIE) as string
+    if (saved === "green" || saved === "forest") return "forest"
+    if (saved === "parchment") return "parchment"
+    if (saved === "polar") return "polar"
+    return defaultColorTheme
   })
 
   const getResolved = (t: Theme): ResolvedTheme =>
@@ -91,14 +95,15 @@ export function ThemeProvider({
     const apply = (resolved: ResolvedTheme) => {
       const activeTheme = colorTheme as ColorTheme
       // Remove all legacy or alternative colour-theme classes
-      root.classList.remove("theme-blue", "parchment")
+      root.classList.remove("theme-blue", "forest", "parchment")
+      if (activeTheme === "forest") root.classList.add("forest")
       if (activeTheme === "parchment") root.classList.add("parchment")
-      // "green" needs no extra class — theme.css :root is the default
+      // "polar" needs no extra class — theme.css :root/.dark is the default
 
       // Light / dark class
       const modes = COLOR_THEME_MODES[activeTheme]
       const supported = modes ?? ["light", "dark"]
-      const effective = supported.includes(resolved) ? resolved : (supported[0] ?? "dark")
+      const effective = supported.includes(resolved) ? resolved : (supported[0] ?? "light")
 
       root.classList.remove("light", "dark")
       root.classList.add(effective)
