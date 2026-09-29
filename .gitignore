@@ -47,6 +47,8 @@ server/data/uploads/*
 !server/data/uploads/.gitkeep
 server/data/exports/*
 !server/data/exports/.gitkeep
+server/data/images/*
+!server/data/images/.gitkeep
 
 # Editor directories and files
 .vscode/*

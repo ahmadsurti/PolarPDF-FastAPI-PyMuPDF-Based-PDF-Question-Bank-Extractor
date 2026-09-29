@@ -182,12 +182,10 @@ PYTHON_VERSION=3.11.9
 PolarPDF/
 ├── api/                                  # Vercel Serverless Function entrypoint
 │   └── index.py                          # ASGI app export for Vercel Python runtime
-├── public/                               # Static PWA assets & sample seed data
-│   ├── favicon.svg                       # Browser tab icon
-│   ├── icon.svg                          # Vector app logo
+├── public/                               # Static PWA assets & application icons
+│   ├── icon.svg                          # Vector brand logo & maskable icon
 │   ├── manifest.json                     # PWA Web App Manifest (standalone mode)
-│   ├── sw.js                             # Offline caching service worker
-│   └── uploads/                          # Sample institutional reference documents
+│   └── sw.js                             # Offline caching service worker
 ├── server/                               # Python FastAPI backend & extraction engine
 │   ├── data/                             # Server-side upload staging & export cache
 │   │   ├── exports/                      # Auto-synchronized JSON, CSV, MD exports
