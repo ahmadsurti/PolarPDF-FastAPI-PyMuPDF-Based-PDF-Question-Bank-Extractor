@@ -9,8 +9,13 @@ Usage:
 import os
 import sys
 import json
+import warnings
 from pathlib import Path
 from typing import Dict, Any
+
+# Disable unneeded Pydantic third-party plugins (e.g. broken logfire environment plugins)
+os.environ["PYDANTIC_DISABLE_PLUGINS"] = "1"
+warnings.filterwarnings("ignore", message=r".*logfire-plugin.*")
 
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware

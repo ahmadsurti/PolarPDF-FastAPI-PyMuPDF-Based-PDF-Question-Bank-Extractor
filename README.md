@@ -1,15 +1,24 @@
-# PolarPDF-FastAPI-PyMuPDF-Based-PDF-Question-Bank-Extractor
+<div align="center">
+  <img src="public/polarhero-github.jpg" alt="PolarPDF — A Traction Product" width="100%" />
 
-![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=flat&logo=python&logoColor=white)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-009688?style=flat&logo=fastapi&logoColor=white)
-![PyMuPDF](https://img.shields.io/badge/PyMuPDF-1.23+-2D3748?style=flat&logo=python&logoColor=white)
-![React](https://img.shields.io/badge/React-19.2+-61DAFB?style=flat&logo=react&logoColor=black)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.9+-3178C6?style=flat&logo=typescript&logoColor=white)
-![Vite](https://img.shields.io/badge/Vite-8.2+-646CFF?style=flat&logo=vite&logoColor=white)
-![TailwindCSS](https://img.shields.io/badge/TailwindCSS-v4.3+-06B6D4?style=flat&logo=tailwindcss&logoColor=white)
-![Zustand](https://img.shields.io/badge/Zustand-5.0+-443E38?style=flat&logo=react&logoColor=white)
-![IndexedDB](https://img.shields.io/badge/Storage-IndexedDB-orange?style=flat&logo=html5&logoColor=white)
-![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg?style=flat)
+  <br />
+  <br />
+
+  <p align="center">
+    <img src="https://img.shields.io/badge/Python-3.11+-3776AB?style=flat&logo=python&logoColor=white" alt="Python" />
+    <img src="https://img.shields.io/badge/FastAPI-0.110+-009688?style=flat&logo=fastapi&logoColor=white" alt="FastAPI" />
+    <img src="https://img.shields.io/badge/PyMuPDF-1.23+-2D3748?style=flat&logo=python&logoColor=white" alt="PyMuPDF" />
+    <img src="https://img.shields.io/badge/React-19.2+-61DAFB?style=flat&logo=react&logoColor=black" alt="React" />
+    <img src="https://img.shields.io/badge/TypeScript-5.9+-3178C6?style=flat&logo=typescript&logoColor=white" alt="TypeScript" />
+    <img src="https://img.shields.io/badge/Vite-8.2+-646CFF?style=flat&logo=vite&logoColor=white" alt="Vite" />
+    <img src="https://img.shields.io/badge/TailwindCSS-v4.3+-06B6D4?style=flat&logo=tailwindcss&logoColor=white" alt="TailwindCSS" />
+    <img src="https://img.shields.io/badge/Zustand-5.0+-443E38?style=flat&logo=react&logoColor=white" alt="Zustand" />
+    <img src="https://img.shields.io/badge/Storage-IndexedDB-orange?style=flat&logo=html5&logoColor=white" alt="IndexedDB" />
+    <img src="https://img.shields.io/badge/License-Apache_2.0-blue.svg?style=flat" alt="License" />
+  </p>
+</div>
+
+---
 
 > **PolarPDF** is a deterministic, offline-first **PDF Question Bank Extractor** and exam intelligence studio. Powered by **FastAPI** and **PyMuPDF (`fitz`)**, it extracts questions, multiple-choice options, official answer keys, syllabus units, and embedded diagram figures from institutional curriculum PDFs with zero AI hallucinations and zero API tokens. It pairs this backend extraction engine with a high-performance **React 19** and **Tailwind CSS v4** Progressive Web App (PWA) dashboard featuring browser-native **IndexedDB** persistence, interactive self-quiz testing modes, in-place live editing, and a multimodal canvas-to-clipboard engine for instant 1-shot pasting into vision LLMs (ChatGPT and Claude).
 
