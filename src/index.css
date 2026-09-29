@@ -1,0 +1,207 @@
+@import "./dashboard-shell/styles/theme.css";
+@import "./features/question-studio/styles/question-studio.css";
+
+/* ── Custom Local Font: Labil Grotesk ── */
+@font-face {
+  font-family: 'Labil Grotesk';
+  src: url('/fonts/labil-grotesk/KLabilGroteskTrial-30Thin.otf') format('opentype');
+  font-weight: 100 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Labil Grotesk';
+  src: url('/fonts/labil-grotesk/KLabilGroteskTrial-40Light.otf') format('opentype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Labil Grotesk';
+  src: url('/fonts/labil-grotesk/KLabilGroteskTrial-50Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Labil Grotesk';
+  src: url('/fonts/labil-grotesk/KLabilGroteskTrial-55RegularItalic.otf') format('opentype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Labil Grotesk';
+  src: url('/fonts/labil-grotesk/KLabilGroteskTrial-60Medium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Labil Grotesk';
+  src: url('/fonts/labil-grotesk/KLabilGroteskTrial-70Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Labil Grotesk';
+  src: url('/fonts/labil-grotesk/KLabilGroteskTrial-75BoldItalic.otf') format('opentype');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Labil Grotesk';
+  src: url('/fonts/labil-grotesk/KLabilGroteskTrial-80Black.otf') format('opentype');
+  font-weight: 800 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+
+
+/* ─────────────────────────────────────────────────────── */
+/* @theme inline — Tailwind v4 color + token bridge        */
+/* ─────────────────────────────────────────────────────── */
+
+@theme inline {
+  /* ── Fonts ── */
+  --font-sans:         var(--font-sans);
+  --font-mono:         var(--font-mono);
+  --font-serif:        var(--font-serif);
+  --font-labil:        var(--font-labil);
+  --font-outfit:       var(--font-outfit);
+  --font-comfortaa:    var(--font-comfortaa);
+  --font-instrument:   var(--font-instrument);
+
+  /* ── Radii ── */
+  --radius-sm:   calc(var(--radius) - 4px);
+  --radius-md:   calc(var(--radius) - 2px);
+  --radius-lg:   var(--radius);
+  --radius-xl:   calc(var(--radius) + 4px);
+
+  /* ── Colors ── */
+  --color-background:              var(--background);
+  --color-foreground:              var(--foreground);
+  --color-card:                    var(--card);
+  --color-card-foreground:         var(--card-foreground);
+  --color-popover:                 var(--popover);
+  --color-popover-foreground:      var(--popover-foreground);
+  --color-primary:                 var(--primary);
+  --color-primary-foreground:      var(--primary-foreground);
+  --color-secondary:               var(--secondary);
+  --color-secondary-foreground:    var(--secondary-foreground);
+  --color-muted:                   var(--muted);
+  --color-muted-foreground:        var(--muted-foreground);
+  --color-accent:                  var(--accent);
+  --color-accent-foreground:       var(--accent-foreground);
+  --color-destructive:             var(--destructive);
+  --color-destructive-foreground:  var(--destructive-foreground);
+  --color-border:                  var(--border);
+  --color-input:                   var(--input);
+  --color-ring:                    var(--ring);
+
+  --color-chart-1:                 var(--chart-1);
+  --color-chart-2:                 var(--chart-2);
+  --color-chart-3:                 var(--chart-3);
+  --color-chart-4:                 var(--chart-4);
+  --color-chart-5:                 var(--chart-5);
+
+  --color-sidebar:                 var(--sidebar);
+  --color-sidebar-foreground:      var(--sidebar-foreground);
+  --color-sidebar-primary:         var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent:          var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border:          var(--sidebar-border);
+  --color-sidebar-ring:            var(--sidebar-ring);
+
+  --color-surface:                 var(--surface);
+  --color-surface-foreground:      var(--surface-foreground);
+  --color-code:                    var(--code);
+  --color-code-foreground:         var(--code-foreground);
+  --color-code-highlight:          var(--code-highlight);
+  --color-code-number:             var(--code-number);
+  --color-selection:               var(--selection);
+  --color-selection-foreground:    var(--selection-foreground);
+
+  /* ── Shadows ── */
+  --shadow-2xs:  var(--shadow-2xs);
+  --shadow-xs:   var(--shadow-xs);
+  --shadow-sm:   var(--shadow-sm);
+  --shadow:      var(--shadow);
+  --shadow-md:   var(--shadow-md);
+  --shadow-lg:   var(--shadow-lg);
+  --shadow-xl:   var(--shadow-xl);
+  --shadow-2xl:  var(--shadow-2xl);
+}
+
+/* ── Typography Utility Classes ── */
+.font-labil {
+  font-family: var(--font-labil);
+}
+
+.font-outfit {
+  font-family: var(--font-outfit);
+}
+
+.font-comfortaa {
+  font-family: var(--font-comfortaa);
+  font-optical-sizing: auto;
+}
+
+.font-instrument {
+  font-family: var(--font-instrument);
+}
+
+.font-instrument-italic {
+  font-family: var(--font-instrument);
+  font-style: italic;
+}
+
+
+
+/* ── Bespoke Minimalist Scrollbar ── */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: oklch(0.28 0.008 260 / 0.6) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: oklch(0.28 0.008 260 / 0.65);
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  transition: background 200ms ease, box-shadow 200ms ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.62 0.19 250 / 0.85);
+  box-shadow: 0 0 10px oklch(0.62 0.19 250 / 0.45);
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: oklch(0.68 0.20 250);
+  box-shadow: 0 0 14px oklch(0.62 0.19 250 / 0.65);
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+

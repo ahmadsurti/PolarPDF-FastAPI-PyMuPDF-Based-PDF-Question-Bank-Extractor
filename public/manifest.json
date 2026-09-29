@@ -1,0 +1,18 @@
+{
+  "name": "polarpdf — Offline Question Bank",
+  "short_name": "polarpdf",
+  "description": "Universal offline question bank and exam intelligence dashboard with instant multi-format caching, quiz self-testing, and local IndexedDB persistence.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#182218",
+  "theme_color": "#182218",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

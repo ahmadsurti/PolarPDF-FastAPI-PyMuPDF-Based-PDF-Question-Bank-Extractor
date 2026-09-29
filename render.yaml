@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: polarpdf
+    runtime: python
+    buildCommand: "npm install && npm run build && pip install -r server/requirements.txt"
+    startCommand: "python server/server.py"
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: PYTHON_VERSION
+        value: 3.11.9
