@@ -60,6 +60,7 @@ app = FastAPI(
     title="polarpdf API",
     description="Deterministic Offline Question Bank & Diagram Extractor",
     version="1.0.0",
+    redirect_slashes=False,
 )
 
 # CORS: Allow frontend in development (port 5173) and production
@@ -73,16 +74,33 @@ app.add_middleware(
 
 
 @app.get("/api/health")
+@app.get("/health")
+@app.get("/api")
+@app.get("/")
 async def health_check():
-    """Health check endpoint for Render / monitoring."""
+    """Health check endpoint for Render / Vercel / monitoring."""
     return {
         "status": "ok",
         "app": "polarpdf",
+        "serverless": IS_SERVERLESS,
         "production_ready": DIST_DIR.exists(),
     }
 
 
+@app.get("/api/extract")
+@app.get("/extract")
+async def extract_info():
+    """Information endpoint for PDF extraction."""
+    return {
+        "status": "ready",
+        "method": "POST",
+        "content_type": "multipart/form-data",
+        "param": "file",
+    }
+
+
 @app.post("/api/extract")
+@app.post("/extract")
 async def extract_pdf(file: UploadFile = File(None), pdf: UploadFile = File(None)):
     """Upload institutional PDF, extract questions, options, answers, and diagrams."""
     upload_file = file or pdf
@@ -118,6 +136,7 @@ async def extract_pdf(file: UploadFile = File(None), pdf: UploadFile = File(None
 
 
 @app.post("/api/save")
+@app.post("/save")
 async def save_project(payload: Dict[str, Any]):
     """Save and re-export question bank data."""
     try:
@@ -140,26 +159,28 @@ async def save_project(payload: Dict[str, Any]):
 app.mount("/images", StaticFiles(directory=str(IMAGES_DIR)), name="images")
 
 
-# ── Production Static Frontend Mount (Render / Standalone) ───────────
-if (DIST_DIR / "index.html").exists():
-    if (DIST_DIR / "assets").exists():
-        app.mount("/assets", StaticFiles(directory=str(DIST_DIR / "assets")), name="assets")
+# ── Production Static Frontend Mount (Render / Standalone / Local Only) ──
+# On Vercel, static frontend files are served directly by the Vercel edge CDN.
+if not IS_SERVERLESS:
+    if (DIST_DIR / "index.html").exists():
+        if (DIST_DIR / "assets").exists():
+            app.mount("/assets", StaticFiles(directory=str(DIST_DIR / "assets")), name="assets")
 
-    @app.get("/{full_path:path}")
-    async def serve_spa(full_path: str):
-        target = DIST_DIR / full_path
-        if full_path and target.is_file():
-            return FileResponse(target)
-        return FileResponse(DIST_DIR / "index.html")
-else:
-    @app.get("/")
-    async def dev_root():
-        return {
-            "message": "polarpdf API server is running.",
-            "mode": "development",
-            "frontend": "Run 'npm run dev' to access the Vite React dashboard at http://localhost:5173",
-            "health": "/api/health",
-        }
+        @app.get("/{full_path:path}")
+        async def serve_spa(full_path: str):
+            target = DIST_DIR / full_path
+            if full_path and target.is_file():
+                return FileResponse(target)
+            return FileResponse(DIST_DIR / "index.html")
+    else:
+        @app.get("/")
+        async def dev_root():
+            return {
+                "message": "polarpdf API server is running.",
+                "mode": "development",
+                "frontend": "Run 'npm run dev' to access the Vite React dashboard at http://localhost:5173",
+                "health": "/api/health",
+            }
 
 
 if __name__ == "__main__":
