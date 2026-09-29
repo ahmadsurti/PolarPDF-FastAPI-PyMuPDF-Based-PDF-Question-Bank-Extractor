@@ -29,6 +29,35 @@ interface QuestionCardProps {
   onUpdateDirectAnswer: (text: string) => void;
 }
 
+function DiagramImage({ src, srNo }: { src: string; srNo: number }) {
+  const [failed, setFailed] = React.useState(false);
+  const normalizedSrc =
+    src.startsWith('data:') || src.startsWith('http') || src.startsWith('/')
+      ? src
+      : `/${src}`;
+
+  if (failed) {
+    return (
+      <div className="flex items-center gap-2 p-2.5 rounded-lg border border-dashed border-border/80 bg-muted/20 text-muted-foreground text-xs select-none">
+        <span className="font-mono font-semibold text-primary/80">[Fig Q{srNo}]</span>
+        <span className="text-[11px] opacity-75">
+          Diagram file unavailable on serverless host. Re-upload PDF to embed as self-contained data URI.
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={normalizedSrc}
+      alt={`Diagram for Q${srNo}`}
+      className="q-diagram-img"
+      loading="lazy"
+      onError={() => setFailed(true)}
+    />
+  );
+}
+
 export const QuestionCard = React.memo(function QuestionCard({
   question,
   isSelected,
@@ -104,13 +133,7 @@ export const QuestionCard = React.memo(function QuestionCard({
       {question.images && question.images.length > 0 && (
         <div className="q-diagrams-grid">
           {question.images.map((img, i) => (
-            <img
-              key={i}
-              src={img}
-              alt={`Diagram for Q${question.sr_no}`}
-              className="q-diagram-img"
-              loading="lazy"
-            />
+            <DiagramImage key={i} src={img} srNo={question.sr_no} />
           ))}
         </div>
       )}

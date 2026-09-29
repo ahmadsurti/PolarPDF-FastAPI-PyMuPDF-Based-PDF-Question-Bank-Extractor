@@ -9,6 +9,7 @@ import os
 import json
 import csv
 import re
+import base64
 from datetime import datetime
 from typing import Dict, List, Any, Optional
 import fitz  # PyMuPDF
@@ -283,9 +284,17 @@ def parse_pdf_question_bank(
 
                                 # Render crisp crop of image bounding box
                                 pix = page.get_pixmap(clip=rect, dpi=150)
-                                pix.save(img_abs_path)
+                                try:
+                                    pix.save(img_abs_path)
+                                except Exception:
+                                    pass
 
-                                q_map[sr_no]["images"].append(img_rel_path)
+                                # ponytail: embed as base64 data URI so diagrams render on serverless/Vercel & offline without disk hosting
+                                png_bytes = pix.tobytes("png")
+                                b64_str = base64.b64encode(png_bytes).decode("utf-8")
+                                data_uri = f"data:image/png;base64,{b64_str}"
+
+                                q_map[sr_no]["images"].append(data_uri)
                                 total_extracted_images += 1
                             break
 
