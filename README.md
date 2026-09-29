@@ -1,6 +1,8 @@
 <div align="center">
   <img src="public/polarhero-github.jpg" alt="PolarPDF — A Traction Product" width="100%" />
 
+  # PolarPDF
+
   <br />
   <br />
 
