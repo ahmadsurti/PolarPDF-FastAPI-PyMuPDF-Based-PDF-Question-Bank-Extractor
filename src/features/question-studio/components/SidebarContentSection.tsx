@@ -65,6 +65,9 @@ export function SidebarContentSection({
   const chapters = activeProject?.data?.chapters || [];
 
   const handleFile = async (file: File) => {
+    // ponytail: block concurrent uploads while extraction is busy
+    if (isExtracting) return;
+
     const ext = file.name.split('.').pop()?.toLowerCase();
     if (ext === 'json') {
       try {
@@ -81,14 +84,39 @@ export function SidebarContentSection({
         alert(`JSON parse error: ${(err as Error).message}`);
       }
     } else if (ext === 'pdf') {
+      // Pre-check for Vercel edge ceiling (4.5 MB request body limit)
+      const isVercel = typeof window !== 'undefined' && window.location.hostname.includes('vercel.app');
+      const MAX_VERCEL_BYTES = 4.5 * 1024 * 1024;
+      if (isVercel && file.size > MAX_VERCEL_BYTES) {
+        const sizeMb = (file.size / (1024 * 1024)).toFixed(1);
+        alert(
+          `PDF exceeds serverless upload limit (${sizeMb} MB > 4.5 MB).\n\nVercel serverless functions enforce a strict 4.5 MB payload limit. Please compress the PDF or run the backend locally with 'python server/server.py' for larger documents.`,
+        );
+        return;
+      }
+
       setIsExtracting(true);
       showToast(`Extracting questions from ${file.name}…`);
       const fd = new FormData();
+      // ponytail: single file field only; duplicate 'pdf' field was doubling wire size into 413s
       fd.append('file', file);
-      fd.append('pdf', file);
       try {
         const res = await fetch('/api/extract', { method: 'POST', body: fd });
-        if (!res.ok) throw new Error(`Extractor server error ${res.status}`);
+        if (!res.ok) {
+          if (res.status === 413) {
+            throw new Error(
+              `Upload rejected (HTTP 413 Payload Too Large). The PDF (${(file.size / (1024 * 1024)).toFixed(1)} MB) exceeds the gateway payload limit. Compress the PDF or run the Python server locally.`,
+            );
+          }
+          let errDetail = `Extractor server error ${res.status}`;
+          try {
+            const errJson = await res.json();
+            if (errJson?.detail) errDetail = errJson.detail;
+          } catch {
+            // response was not JSON
+          }
+          throw new Error(errDetail);
+        }
         const parsed = (await res.json()) as ProjectData;
         const id = file.name.replace('.pdf', '').replace(/\s+/g, '_');
         await addProject(id, file.name.replace('.pdf', ''), parsed);
@@ -111,8 +139,10 @@ export function SidebarContentSection({
       ref={fileInputRef}
       type="file"
       accept=".json,.pdf"
+      disabled={isExtracting}
       className="hidden"
       onChange={(e) => {
+        if (isExtracting) return;
         const f = e.target.files?.[0];
         if (f) handleFile(f);
         e.target.value = '';
@@ -290,13 +320,22 @@ export function SidebarContentSection({
           <TooltipTrigger asChild>
             <button
               type="button"
-              onClick={() => fileInputRef.current?.click()}
-              className="size-8 rounded-lg flex items-center justify-center text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-primary transition-colors cursor-pointer mt-auto"
+              disabled={isExtracting}
+              onClick={() => {
+                if (!isExtracting) fileInputRef.current?.click();
+              }}
+              className={`size-8 rounded-lg flex items-center justify-center transition-colors mt-auto ${
+                isExtracting
+                  ? 'text-sidebar-foreground/30 cursor-not-allowed opacity-50'
+                  : 'text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-primary cursor-pointer'
+              }`}
             >
-              <UploadCloud className="size-4" />
+              <UploadCloud className={`size-4 ${isExtracting ? 'animate-bounce text-primary' : ''}`} />
             </button>
           </TooltipTrigger>
-          <TooltipContent side="right">Import PDF / JSON</TooltipContent>
+          <TooltipContent side="right">
+            {isExtracting ? 'Extraction in progress…' : 'Import PDF / JSON'}
+          </TooltipContent>
         </Tooltip>
       </div>
     );
@@ -319,11 +358,11 @@ export function SidebarContentSection({
             <Select
               value={activeProjectId || undefined}
               onValueChange={(val) => {
-                if (val) setActiveProject(val);
+                if (val && !isExtracting) setActiveProject(val);
               }}
-              disabled={projects.length === 0}
+              disabled={projects.length === 0 || isExtracting}
             >
-              <SelectTrigger className="h-9 w-full min-w-0 rounded-xl bg-sidebar-accent/50 hover:bg-sidebar-accent/80 border-sidebar-border/80 text-sidebar-foreground text-xs font-medium transition-all shadow-2xs focus:ring-2 focus:ring-primary/25 overflow-hidden">
+              <SelectTrigger className="h-9 w-full min-w-0 rounded-xl bg-sidebar-accent/50 hover:bg-sidebar-accent/80 border-sidebar-border/80 text-sidebar-foreground text-xs font-medium transition-all shadow-2xs focus:ring-2 focus:ring-primary/25 overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed">
                 <SelectValue placeholder="No Question Bank" className="truncate text-left block min-w-0 w-full" />
               </SelectTrigger>
               <SelectContent
@@ -350,8 +389,8 @@ export function SidebarContentSection({
           <button
             type="button"
             onClick={onOpenRename}
-            disabled={!activeProject}
-            title={activeProject ? "Rename active project" : "No project to rename"}
+            disabled={!activeProject || isExtracting}
+            title={isExtracting ? "Extraction in progress" : activeProject ? "Rename active project" : "No project to rename"}
             className="size-9 rounded-xl border border-sidebar-border/80 bg-sidebar hover:bg-sidebar-accent text-sidebar-foreground/80 hover:text-sidebar-foreground transition-all cursor-pointer flex items-center justify-center shrink-0 shadow-2xs hover:border-sidebar-foreground/30 disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <Pencil className="size-3.5" />
@@ -360,8 +399,8 @@ export function SidebarContentSection({
           <button
             type="button"
             onClick={onOpenDelete}
-            disabled={!activeProject}
-            title={activeProject ? "Delete active project" : "No project to delete"}
+            disabled={!activeProject || isExtracting}
+            title={isExtracting ? "Extraction in progress" : activeProject ? "Delete active project" : "No project to delete"}
             className="size-9 rounded-xl border border-sidebar-border/80 bg-sidebar hover:bg-sidebar-accent text-sidebar-foreground/80 hover:text-destructive transition-all cursor-pointer flex items-center justify-center shrink-0 shadow-2xs hover:border-destructive/40 disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <Trash2 className="size-3.5" />
@@ -523,26 +562,31 @@ export function SidebarContentSection({
       <div
         onDragOver={(e) => {
           e.preventDefault();
-          setIsDragOver(true);
+          if (!isExtracting) setIsDragOver(true);
         }}
         onDragLeave={() => setIsDragOver(false)}
         onDrop={(e) => {
           e.preventDefault();
           setIsDragOver(false);
+          if (isExtracting) return;
           const f = e.dataTransfer.files[0];
           if (f) handleFile(f);
         }}
-        onClick={() => fileInputRef.current?.click()}
-        className={`flex flex-col items-center justify-center p-3 rounded-lg border border-dashed transition-all cursor-pointer text-center ${
-          isDragOver
-            ? 'border-primary bg-primary/10'
-            : 'border-sidebar-border/80 hover:border-sidebar-foreground/30 bg-sidebar-accent/20'
+        onClick={() => {
+          if (!isExtracting) fileInputRef.current?.click();
+        }}
+        className={`flex flex-col items-center justify-center p-3 rounded-lg border border-dashed transition-all text-center ${
+          isExtracting
+            ? 'border-primary/50 bg-primary/5 cursor-not-allowed opacity-85'
+            : isDragOver
+              ? 'border-primary bg-primary/10 cursor-pointer'
+              : 'border-sidebar-border/80 hover:border-sidebar-foreground/30 bg-sidebar-accent/20 cursor-pointer'
         }`}
       >
         {isExtracting ? (
-          <div className="flex items-center gap-2 text-xs font-medium text-primary animate-pulse py-1">
-            <UploadCloud className="size-4 animate-bounce" />
-            <span>Extracting PDF…</span>
+          <div className="flex items-center gap-2 text-xs font-medium text-primary py-1">
+            <UploadCloud className="size-4 animate-bounce shrink-0" />
+            <span className="animate-pulse">Extracting PDF… please wait</span>
           </div>
         ) : (
           <>

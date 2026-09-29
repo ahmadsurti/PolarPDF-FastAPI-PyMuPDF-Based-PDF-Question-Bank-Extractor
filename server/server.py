@@ -13,17 +13,21 @@ import warnings
 from pathlib import Path
 from typing import Dict, Any
 
+import uuid
+import tempfile
+
 # Disable unneeded Pydantic third-party plugins (e.g. broken logfire environment plugins)
 os.environ["PYDANTIC_DISABLE_PLUGINS"] = "1"
 warnings.filterwarnings("ignore", message=r".*logfire-plugin.*")
 
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import FastAPI, File, UploadFile, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 import uvicorn
 
-import tempfile
+# 50 MB maximum payload limit for standalone/local instances
+MAX_LOCAL_UPLOAD_BYTES = 50 * 1024 * 1024
 
 # Ensure server directory is on sys.path for extractor import
 SERVER_DIR = Path(__file__).resolve().parent
@@ -101,22 +105,40 @@ async def extract_info():
 
 @app.post("/api/extract")
 @app.post("/extract")
-async def extract_pdf(file: UploadFile = File(None), pdf: UploadFile = File(None)):
+async def extract_pdf(
+    request: Request,
+    file: UploadFile = File(None),
+    pdf: UploadFile = File(None),
+):
     """Upload institutional PDF, extract questions, options, answers, and diagrams."""
+    content_length = request.headers.get("content-length")
+    if content_length and int(content_length) > MAX_LOCAL_UPLOAD_BYTES:
+        raise HTTPException(
+            status_code=413,
+            detail=f"File exceeds maximum allowed size ({MAX_LOCAL_UPLOAD_BYTES // (1024 * 1024)}MB).",
+        )
+
     upload_file = file or pdf
     if not upload_file:
         raise HTTPException(status_code=400, detail="No file provided. Please upload a PDF file.")
     if not (upload_file.filename or "").lower().endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Only PDF files are supported.")
 
-    filename = upload_file.filename or "upload.pdf"
-    saved_filepath = UPLOADS_DIR / filename
+    raw_filename = upload_file.filename or "upload.pdf"
+    unique_prefix = uuid.uuid4().hex[:8]
+    saved_filepath = UPLOADS_DIR / f"{unique_prefix}_{raw_filename}"
     try:
         content = await upload_file.read()
+        if len(content) > MAX_LOCAL_UPLOAD_BYTES:
+            raise HTTPException(
+                status_code=413,
+                detail=f"File exceeds maximum allowed size ({MAX_LOCAL_UPLOAD_BYTES // (1024 * 1024)}MB).",
+            )
+
         with open(saved_filepath, "wb") as f:
             f.write(content)
 
-        print(f"[*] Extracting PDF: {filename} ({len(content)} bytes)...")
+        print(f"[*] Extracting PDF: {raw_filename} ({len(content)} bytes)...")
         parsed_data = extractor.parse_pdf_question_bank(
             str(saved_filepath),
             extract_images=True,
@@ -127,12 +149,20 @@ async def extract_pdf(file: UploadFile = File(None), pdf: UploadFile = File(None
         extractor.export_all(parsed_data, output_dir=str(EXPORTS_DIR))
 
         total = parsed_data.get("metadata", {}).get("total_questions", 0)
-        print(f"[SUCCESS] Extracted {total} questions from {filename}")
+        print(f"[SUCCESS] Extracted {total} questions from {raw_filename}")
         return JSONResponse(content=parsed_data)
 
+    except HTTPException:
+        raise
     except Exception as e:
         print(f"[ERROR] Extraction failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        if saved_filepath.exists():
+            try:
+                saved_filepath.unlink()
+            except OSError:
+                pass
 
 
 @app.post("/api/save")

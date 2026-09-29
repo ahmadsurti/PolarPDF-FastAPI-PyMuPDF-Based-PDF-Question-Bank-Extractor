@@ -1,6 +1,7 @@
 import os
 import sys
 import tempfile
+import uuid
 from pathlib import Path
 from typing import Optional
 
@@ -21,7 +22,7 @@ from fastapi.responses import JSONResponse
 try:
     from server import extractor
 except ImportError:
-    import extractor
+    import extractor  # type: ignore
 
 DATA_DIR = Path(tempfile.gettempdir()) / "polarpdf"
 UPLOADS_DIR = DATA_DIR / "uploads"
@@ -44,6 +45,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Vercel serverless functions enforce a 4.5MB edge limit; local/custom environments capped at 25MB
+MAX_FILE_BYTES = 25 * 1024 * 1024
+
 
 @app.api_route("/", methods=["GET", "POST", "OPTIONS"])
 @app.api_route("/extract", methods=["GET", "POST", "OPTIONS"])
@@ -65,16 +69,31 @@ async def extract_handler(
             "content_type": "multipart/form-data",
         })
 
+    # Guard 1: Inspect Content-Length header before reading full body
+    content_length = request.headers.get("content-length")
+    if content_length and int(content_length) > MAX_FILE_BYTES:
+        raise HTTPException(
+            status_code=413,
+            detail=f"Uploaded file exceeds payload limit of {MAX_FILE_BYTES // (1024 * 1024)}MB.",
+        )
+
     upload_file = file or pdf
     if not upload_file:
         raise HTTPException(status_code=400, detail="No file provided. Please upload a PDF file.")
     if not (upload_file.filename or "").lower().endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Only PDF files are supported.")
 
-    filename = upload_file.filename or "upload.pdf"
-    saved_filepath = UPLOADS_DIR / filename
+    raw_filename = upload_file.filename or "upload.pdf"
+    unique_prefix = uuid.uuid4().hex[:8]
+    saved_filepath = UPLOADS_DIR / f"{unique_prefix}_{raw_filename}"
     try:
         content = await upload_file.read()
+        if len(content) > MAX_FILE_BYTES:
+            raise HTTPException(
+                status_code=413,
+                detail=f"Uploaded file exceeds payload limit of {MAX_FILE_BYTES // (1024 * 1024)}MB.",
+            )
+
         with open(saved_filepath, "wb") as f:
             f.write(content)
 
@@ -87,5 +106,13 @@ async def extract_handler(
         extractor.export_all(parsed_data, output_dir=str(EXPORTS_DIR))
         return JSONResponse(content=parsed_data)
 
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        if saved_filepath.exists():
+            try:
+                saved_filepath.unlink()
+            except OSError:
+                pass
