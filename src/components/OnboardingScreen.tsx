@@ -56,6 +56,33 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
         <div className="mt-8 flex justify-center">
           <FlowButton text="Enter Studio" onClick={handleStart} autoFocus />
         </div>
+
+        {/* CodeHype Badge */}
+        <div className="mt-6 flex justify-center">
+          <a
+            href="https://codehype.ai/product/polarpdf?utm_source=codehype_badge"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center transition-transform hover:scale-105 active:scale-95 duration-200"
+          >
+            <img
+              src="https://codehype.ai/badges/polarpdf.svg?variant=find-us&v=20"
+              alt="Featured on CodeHype"
+              width={180}
+              height={65}
+              loading="lazy"
+              decoding="async"
+              style={{
+                display: 'inline-block',
+                border: 0,
+                width: '100%',
+                maxWidth: '180px',
+                height: 'auto',
+                maxHeight: '65px',
+              }}
+            />
+          </a>
+        </div>
       </main>
 
       {/* Brand attribution anchored to the right corner with interactive hover expansion */}
