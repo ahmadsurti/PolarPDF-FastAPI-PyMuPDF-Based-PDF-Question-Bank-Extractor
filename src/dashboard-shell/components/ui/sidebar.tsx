@@ -57,6 +57,9 @@ function SidebarProvider({
 }) {
   const isMobile = useIsMobile()
   const [openMobile, setOpenMobile] = React.useState(false)
+  React.useEffect(() => {
+  setOpenMobile(false)
+}, [isMobile])
   const [_open, _setOpen] = React.useState(defaultOpen)
   const open = openProp ?? _open
 
@@ -160,7 +163,7 @@ function Sidebar({
     )
   }
 
-  if (isMobile) {
+if (isMobile) {
     return (
       <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
         <SheetHeader className="sr-only">
@@ -171,6 +174,7 @@ function Sidebar({
           data-sidebar="sidebar"
           data-slot="sidebar"
           data-mobile="true"
+          data-state="expanded"
           className="w-(--sidebar-width) bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden"
           style={
             {
@@ -184,7 +188,6 @@ function Sidebar({
       </Sheet>
     )
   }
-
   return (
     <div
       className="group peer text-sidebar-foreground hidden md:block"
@@ -321,7 +324,7 @@ function SidebarContent({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="sidebar-content"
       data-sidebar="content"
-      className={cn("flex min-h-0 flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden", className)}
+      className={cn("md:flex min-h-0 flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=offcanvas]:overflow-auto", className)}
       {...props}
     />
   )
