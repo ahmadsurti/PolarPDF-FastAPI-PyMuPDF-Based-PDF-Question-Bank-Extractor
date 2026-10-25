@@ -54,8 +54,7 @@ export function SidebarContentSection({
     addProject,
     showToast,
   } = useQuestionStudio();
-
-  const { state } = useSidebar();
+  const { state, isMobile } = useSidebar();
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
   const [isDragOver, setIsDragOver] = React.useState(false);
   const [isExtracting, setIsExtracting] = React.useState(false);
@@ -154,7 +153,7 @@ export function SidebarContentSection({
   // COLLAPSED RAIL MODE (Ctrl+B / 48px width)
   // Clean, dedicated icon buttons with instant tooltips
   // ══════════════════════════════════════════════════════════════════
-  if (state === 'collapsed') {
+  if (!isMobile && state === 'collapsed') {
     return (
       <div className="flex flex-col items-center gap-3 py-3 w-full select-none">
         {hiddenFileInput}
